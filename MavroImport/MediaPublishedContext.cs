@@ -25,8 +25,8 @@ namespace MavroImport
 
         public int? MediaPublishedId { get; set; }
 
-        public bool? IsUncompressed { get; set; }
+//        public bool? IsUncompressed { get; set; }
 
-        public byte[] ContextText1 { get; set; }
+//        public byte[] ContextText1 { get; set; }
     }
 }

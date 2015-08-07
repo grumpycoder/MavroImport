@@ -25,8 +25,8 @@ namespace MavroImport
         static void Main(string[] args)
         {
 
-            //ExtractLoadChapterPublications();
-            ExtractLoadPersonPublications();
+            ExtractLoadChapterPublications();
+//            ExtractLoadPersonPublications();
             //ExtractLoadWebsitePublications();
             Console.WriteLine("Finished");
             Console.ReadKey();
@@ -58,12 +58,10 @@ namespace MavroImport
                             MimeTypeId = 7,
                             DocumentExtension = ".pdf",
                             FileStreamID = Guid.NewGuid(),
-                            FileName = "MavroImport.pdf"
+                            FileName = "MavroImport-Website-" + website.Name + ".pdf",
                         };
                         db.MediaWebsiteEGroupContexts.Add(context);
-                        //db.SaveChanges();
-
-
+                        db.SaveChanges();
                     }
                 }
             }
@@ -102,7 +100,7 @@ namespace MavroImport
                                 DateCreated = DateTime.Now,
                                 DateModified = DateTime.Now,
                                 CreatedUserId = userId,
-                                Name = "MavroImport",
+                                Name = "MavroImport-Person-" + commonPerson.LName
                             }
                         };
                         db.PersonMediaPublishedRels.AddOrUpdate(rel);
@@ -114,7 +112,7 @@ namespace MavroImport
                             MimeTypeId = 7,
                             DocumentExtension = ".pdf",
                             FileStreamID = Guid.NewGuid(),
-                            FileName = "MavroImport.pdf",
+                            FileName = "MavroImport-Person-" + commonPerson.FullName + ".pdf",
                             MediaPublishedId = rel.MediaPublishedId
                         };
                         db.MediaPublishedContexts.Add(context);
@@ -133,7 +131,7 @@ namespace MavroImport
             var engine = new FileHelperEngine<MavroRecord>();
             var results = engine.ReadFile(@"C:\temp\beholderArchiveUrl.csv").Where(r => r.RecordType == "CHAPTER");
 
-            var records = results as IList<MavroRecord> ?? results.ToList();
+            var records = results as IList<MavroRecord> ?? results.ToList().Take(10);
             using (var db = new AppContext())
             {
                 foreach (var record in records)
@@ -157,7 +155,7 @@ namespace MavroImport
                                 DateCreated = DateTime.Now,
                                 DateModified = DateTime.Now,
                                 CreatedUserId = userId,
-                                Name = "MavroImport",
+                                Name = "MavroImport-Chapter-" + chapter.ChapterName
                             }
                         };
                         db.ChapterMediaPublishedRels.AddOrUpdate(rel);
@@ -169,7 +167,7 @@ namespace MavroImport
                             MimeTypeId = 7,
                             DocumentExtension = ".pdf",
                             FileStreamID = Guid.NewGuid(),
-                            FileName = "MavroImport.pdf",
+                            FileName = "MavroImport-Chapter-" + chapter.ChapterName + ".pdf",
                             MediaPublishedId = rel.MediaPublishedId
                         };
                         db.MediaPublishedContexts.Add(context);
