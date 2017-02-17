@@ -1,33 +1,21 @@
-﻿using System;
-using System.Collections;
+﻿using FileHelpers;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using FileHelpers;
 
 namespace MavroImport
 {
-    class Program
+    partial class Program
     {
-        public enum ConfidentialityType
-        {
-            EyesOnly = 1,
-            OffTheRecord = 2,
-            Confidential = 3,
-            Open = 4,
-            Security = 21
-        }
         static void Main(string[] args)
         {
 
-            ExtractLoadChapterPublications();
-//            ExtractLoadPersonPublications();
-            //ExtractLoadWebsitePublications();
+            //ExtractLoadChapterPublications();
+            //ExtractLoadPersonPublications();
+            ExtractLoadWebsitePublications();
             Console.WriteLine("Finished");
             Console.ReadKey();
         }
@@ -36,15 +24,16 @@ namespace MavroImport
         {
             // Read file
             var engine = new FileHelperEngine<MavroRecord>();
-            var results = engine.ReadFile(@"C:\temp\beholderArchiveUrl.csv").Where(r => r.RecordType == "WEBSITE");
+            var results = engine.ReadFile(@"C:\temp\beholderArchiveUrl.csv").Skip(3).Where(r => r.RecordType == "WEBSITE");
 
             var records = results as IList<MavroRecord> ?? results.ToList();
             using (var db = new AppContext())
             {
-                foreach (var record in records.Take(1))
+                foreach (var record in records)
                 {
                     var website = db.MediaWebsiteEGroups.Find(Convert.ToInt32(record.Id));
-                    Console.WriteLine("Creating item for WebSite: {0}: Id: {1}", website.Name, website.Id);
+                    if (website == null) continue;
+                    Console.WriteLine("Creating item for WebSite: {0}: Id: {1}", website.Name ?? "Unknown", website.Id);
                     using (var client = new WebClient())
                     {
                         byte[] buffer = client.DownloadData(record.Url);
@@ -76,10 +65,12 @@ namespace MavroImport
             var records = results as IList<MavroRecord> ?? results.ToList();
             using (var db = new AppContext())
             {
-                foreach (var record in records.Take(1))
+                foreach (var record in records)
                 {
                     var beholderPerson = db.BeholderPeople.Find(Convert.ToInt32(record.Id));
                     var commonPerson = db.CommonPeople.Find(beholderPerson.PersonId);
+
+                    if (commonPerson == null) continue;
 
                     Console.WriteLine("Creating item for Person: {0}: BeholderId: {1}", commonPerson.FullName, beholderPerson.Id);
                     using (var client = new WebClient())
@@ -137,6 +128,9 @@ namespace MavroImport
                 foreach (var record in records)
                 {
                     var chapter = db.Chapters.Find(Convert.ToInt32(record.Id));
+
+                    if (chapter == null) continue;
+
                     Console.WriteLine("Creating publication for chapter: {0}: Id: {1}", chapter.ChapterName, chapter.Id);
                     using (var client = new WebClient())
                     {

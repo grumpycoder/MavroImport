@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Chapter.cs" />
     <Compile Include="ChapterMediaPublishedRel.cs" />
+    <Compile Include="ConfidentialityType.cs" />
     <Compile Include="MediaPublished.cs" />
     <Compile Include="MediaPublishedContext.cs" />
     <Compile Include="AppContext1.cs" />
